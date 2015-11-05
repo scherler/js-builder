@@ -15,7 +15,7 @@ var isMavenBuild = fs.existsSync(cwd + '/pom.xml');
 var bundles = []; // see exports.bundle function
 
 var adjunctBasePath = './target/generated-adjuncts/';
-var jsmodulesBasePath = './src/main/webapp/jsmodules/';
+var jsmodulesBasePath = './target/classes/assets/';
 
 var srcPaths;
 var testSrcPath;
