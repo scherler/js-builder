@@ -180,7 +180,7 @@ exports.externalizedVersionMetadata = function(depPackageName) {
     metadata.installedVersion = new Version(packageJson.version);
     metadata.depVersion = new Version(declaredDepVersion.version);
     metadata.normalizedPackageName = exports.normalizePackageName(depPackageName);
-    metadata.jsModuleNames = mmpModuleNames(metadata.normalizedPackageName, metadata.installedVersion);
+    metadata.jsModuleNames = exports.mmpModuleNames(metadata.normalizedPackageName, metadata.installedVersion);
     metadata.importAs = function (scope) {
         var scopedName;
         if (scope) {
@@ -218,7 +218,7 @@ exports.normalizePackageName = function(packageName) {
  * @param normalizedPackageName The normalized NPM package name.
  * @param fullVersion The full version of the installed NPM package.
  */
-function mmpModuleNames(normalizedPackageName, fullVersion) {
+exports.mmpModuleNames = function mmpModuleNames(normalizedPackageName, fullVersion) {
     return {
         any: normalizedPackageName + '@any',
         major: normalizedPackageName + '@' + fullVersion.major + '.x',
