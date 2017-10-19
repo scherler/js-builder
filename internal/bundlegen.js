@@ -71,6 +71,12 @@ exports.registerPackageJsonBundles = function(builder) {
     }
 };
 
+function cleanPath(path) {
+    return path.replace(/\\/g, '/');
+}
+
+exports.cleanPath = cleanPath;
+
 exports.doJSBundle = function(bundle, applyImports) {
     if (!bundle.bundleInDir) {
         var adjunctBase = setAdjunctInDir(bundle);
@@ -134,7 +140,7 @@ exports.doJSBundle = function(bundle, applyImports) {
         for (var ii = 0; ii < bundle.startupModules.length; ii++) {
             var startupModule = bundle.startupModules[ii];
             if (startupModule.charAt(0) === '.') {
-                var relativeModulePath = path.relative(wrapperFileDir, startupModule);
+                var relativeModulePath = cleanPath(path.relative(wrapperFileDir, startupModule));
                 if (fs.existsSync(cwd + '/' + startupModule + '.js') || fs.existsSync(cwd + '/' + startupModule)) {
                     relativeStartupModules.push(relativeModulePath);
                 } else {
@@ -159,8 +165,7 @@ exports.doJSBundle = function(bundle, applyImports) {
             //
             var fileToBasename = path.basename(fileToBundle);
             var wrapperFileName = wrapperFileDir + '/_js_wrapper-' + fileToBasename;
-            var relativePath = path.relative(wrapperFileDir, fileToBundle);
-            relativePath = relativePath.replace(/\\/g, '/');
+            var relativePath = cleanPath(path.relative(wrapperFileDir, fileToBundle));
             var wrapperFileContent = entryModuleWrapperTemplate({
                 entrymodule: './' + relativePath,
                 hpiPluginId: (maven.isHPI() ? maven.getArtifactId() : undefined),
