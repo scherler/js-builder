@@ -13,3 +13,4 @@ node_modules/
 target
 jenkins
 npm-debug.log
+/.project
