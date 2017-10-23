@@ -7,14 +7,14 @@ var config = {
 };
 
 function onFullfilled(moduleName) {
-    if (fullfilled.indexOf(moduleName) === -1) {
+    if (moduleName && fullfilled.indexOf(moduleName) === -1) {
         fullfilled.push(moduleName);
     }
     if (fullfilled.length === numStartupModules) {
-        require('{{entrymodule}}');
+        var module = require('{{entrymodule}}');
         try {
             if (onExec) {
-                onExec();
+                onExec(module);
             }
         } catch (e) {
             console.log('No onExec function, or an unexpected error executing it. Probably because of bundle.generateNoImportsBundle().');

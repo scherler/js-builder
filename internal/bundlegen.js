@@ -19,12 +19,14 @@ var ModuleSpec = require('@jenkins-cd/js-modules/js/ModuleSpec');
 var entryModuleTemplate = templates.getTemplate('entry-module.hbs');
 var entryModuleWrapperTemplate = templates.getTemplate('entry-module-wrapper.js');
 var packageJson = require(process.cwd() + '/package.json');
+var Version = require('@jenkins-cd/js-modules/js/Version');
 
 var hasJenkinsJsModulesDependency = dependencies.hasJenkinsJsModulesDep();
 var preBundleListeners = [];
 var postBundleListeners = [];
 var globalImportMappings = [];
 var globalExportMappings = [];
+var bundleSetupListeners = [];
 
 /**
  * Add a listener to be called just before Browserify starts bundling.
@@ -48,6 +50,10 @@ exports.onPreBundle = function(listener) {
  */
 exports.onPostBundle = function(listener) {
     postBundleListeners.push(listener);
+};
+
+exports.onSetupBundle = function(listener) {
+    bundleSetupListeners.push(listener);
 };
 
 exports.addGlobalImportMapping = function(mapping) {
@@ -78,6 +84,10 @@ function cleanPath(path) {
 exports.cleanPath = cleanPath;
 
 exports.doJSBundle = function(bundle, applyImports) {
+    for (var i = 0; i < bundleSetupListeners.length; i++) {
+        bundleSetupListeners[i].call(this, bundle, packageJson);
+    }
+    
     if (!bundle.bundleInDir) {
         var adjunctBase = setAdjunctInDir(bundle);
         logger.logInfo('Javascript bundle "' + bundle.as + '" will be available in Jenkins as adjunct "' + adjunctBase + '.' + bundle.as + '".')
@@ -401,12 +411,15 @@ function addModuleMappingTransforms(bundle, bundler) {
                     };
 
                     if(exportModule) {
+                        var normalizedPackageName = dependencies.normalizePackageName(packageJson.name);
                         // Always call export, even if the export function was not called on the builder instance.
                         // If the export function was not called, we export nothing (see above). In this case, it just
                         // generates an event for any modules that need to sync on the load event for the module.
                         templateParams.entryExport = {
                             namespace: exportNamespace,
-                            module: exportModule
+                            module: exportModule,
+                            normalizedPackageName: normalizedPackageName,
+                            version: dependencies.mmpModuleNames(normalizedPackageName, new Version(packageJson.version)),
                         };
                     }
 
