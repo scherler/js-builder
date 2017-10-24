@@ -150,7 +150,7 @@ exports.doJSBundle = function(bundle, applyImports) {
         for (var ii = 0; ii < bundle.startupModules.length; ii++) {
             var startupModule = bundle.startupModules[ii];
             if (startupModule.charAt(0) === '.') {
-                var relativeModulePath = cleanPath(path.relative(wrapperFileDir, startupModule));
+                var relativeModulePath = path.posix.relative(wrapperFileDir, startupModule);
                 if (fs.existsSync(cwd + '/' + startupModule + '.js') || fs.existsSync(cwd + '/' + startupModule)) {
                     relativeStartupModules.push(relativeModulePath);
                 } else {
@@ -175,7 +175,7 @@ exports.doJSBundle = function(bundle, applyImports) {
             //
             var fileToBasename = path.basename(fileToBundle);
             var wrapperFileName = wrapperFileDir + '/_js_wrapper-' + fileToBasename;
-            var relativePath = cleanPath(path.relative(wrapperFileDir, fileToBundle));
+            var relativePath = path.posix.relative(wrapperFileDir, fileToBundle);
             var wrapperFileContent = entryModuleWrapperTemplate({
                 entrymodule: './' + relativePath,
                 hpiPluginId: (maven.isHPI() ? maven.getArtifactId() : undefined),
