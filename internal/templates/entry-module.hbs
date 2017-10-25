@@ -63,22 +63,31 @@ function ___$$$___doExport(namespace, moduleName, module) {
 /*** Start Module Exec Function ***************************************/
 function ___$$$___exec(onExec) {
     {{content}}
-    {{#if bundle.doOnExecCall}}onExec();{{/if}}
+    {{#if bundle.doOnExecCall}}onExec(exports);{{/if}}
 }
 /*** End Module Exec Function   ***************************************/
 
-function ___$$$___doExports() {
+function ___$$$___doExports(module) {
     // Do exports, if any ....
-    {{#if entryExport}}___$$$___doExport({{entryExport.namespace}}, '{{bundle.as}}', {{entryExport.module}});{{/if}}
+    function doDependencyExport(module, normalizedPackageName, jsModuleNames) {
+        ___$$$___doExport(normalizedPackageName, jsModuleNames.patch, module);
+        ___$$$___doExport(normalizedPackageName, jsModuleNames.minor, module);
+        ___$$$___doExport(normalizedPackageName, jsModuleNames.major, module);
+        ___$$$___doExport(normalizedPackageName, jsModuleNames.any, module);
+    }
+
+    {{#if entryExport}}
+    ___$$$___doExport({{entryExport.namespace}}, '{{bundle.as}}', {{entryExport.module}});
+
+    doDependencyExport(module, '{{entryExport.normalizedPackageName}}', {
+        patch: '{{entryExport.version.patch}}',
+        minor: '{{entryExport.version.minor}}',
+        major: '{{entryExport.version.major}}',
+        any: '{{entryExport.version.any}}'
+    });
+    {{/if}}
 
     {{#if dependencyExports}}
-        function doDependencyExport(module, normalizedPackageName, jsModuleNames) {
-            ___$$$___doExport(normalizedPackageName, jsModuleNames.patch, module);
-            ___$$$___doExport(normalizedPackageName, jsModuleNames.minor, module);
-            ___$$$___doExport(normalizedPackageName, jsModuleNames.major, module);
-            ___$$$___doExport(normalizedPackageName, jsModuleNames.any, module);
-        }
-
         {{#each dependencyExports}}
         doDependencyExport(require('{{packageName}}'), '{{normalizedPackageName}}', {
             patch: '{{jsModuleNames.patch}}',
@@ -98,8 +107,8 @@ function ___$$$___doCSS() {
 
 function ___$$$___doBundleInit() {
     try {
-        ___$$$___exec(function() {
-            ___$$$___doExports();
+        ___$$$___exec(function(module) {
+            ___$$$___doExports(module);
             ___$$$___doCSS();
         });
     } catch (e) {

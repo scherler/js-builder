@@ -261,6 +261,14 @@ exports.onPostBundle = function(listener) {
     return exports;
 };
 
+/**
+ * Called before any additional bundle setup happens
+ * Param: function(bundle, packageJson)
+ */
+exports.onSetupBundle = function(listener) {
+    bundlegen.onSetupBundle(listener);
+};
+
 function normalizePath(path) {
     path = _string.ltrim(path, './');
     path = _string.ltrim(path, '/');
@@ -495,7 +503,11 @@ function bundleJs(moduleToBundle, as) {
 
     bundle.onStartup = function (startupModule) {
         if (typeof startupModule === 'string') {
-            bundle.startupModules.push(startupModule);
+            if (bundle.startupModules.indexOf(startupModule) === -1) {
+                bundle.startupModules.push(startupModule);
+            }
+        } else {
+            throw new Error('Invalid startupModule type, must be a string' + startupModule);
         }
         return bundle;
     };
